@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Три карты Таро</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=Alegreya+Sans:wght@400;500;700&display=swap">
+<style>
+/* Layout: one night-table scene — question prompt, draw button, three cards in a row that flip one by one, meanings under each */
+:root{
+  color-scheme:dark;
+  --bg:#0f1622; --bg2:#172235; --ink:#ece4d2; --muted:#a5a593; --brass:#d1a95a; --card:#f4ecd9; --card-ink:#2a2320; --wine:#8c3a3a;
+  --display:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  --body:"Alegreya Sans",system-ui,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{background:radial-gradient(120% 80% at 50% 0%,var(--bg2),var(--bg) 70%) fixed,var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5}
+#sky{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 56px;display:flex;flex-direction:column;align-items:center;gap:22px;text-align:center}
+.eyebrow{font:700 12px var(--body);letter-spacing:.24em;text-transform:uppercase;color:var(--brass)}
+h1{font:700 clamp(40px,8vw,72px)/1 var(--display);margin:6px 0 0;text-wrap:balance}
+.lead{color:var(--muted);max-width:46ch;margin:0}
+.spreads{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.chip{font:500 15px var(--body);color:var(--ink);background:transparent;border:1px solid color-mix(in srgb,var(--brass) 45%,transparent);border-radius:999px;padding:6px 14px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--brass);color:var(--bg);border-color:var(--brass)}
+.opts{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:15px;cursor:pointer}
+.opts input{accent-color:var(--brass);width:18px;height:18px}
+.draw{font:700 22px var(--display);letter-spacing:.04em;color:var(--bg);background:var(--brass);border:none;border-radius:999px;padding:14px 36px;cursor:pointer;box-shadow:0 0 0 6px color-mix(in srgb,var(--brass) 18%,transparent),0 10px 30px rgba(0,0,0,.4);transition:transform .15s, box-shadow .2s}
+.draw:hover{transform:translateY(-2px);box-shadow:0 0 0 10px color-mix(in srgb,var(--brass) 14%,transparent),0 14px 34px rgba(0,0,0,.45)}
+.draw:disabled{opacity:.6;cursor:default;transform:none}
+button:focus-visible,.opts input:focus-visible{outline:2px solid var(--ink);outline-offset:4px}
+.table{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(12px,3vw,32px);width:100%;margin-top:6px}
+.slot{display:flex;flex-direction:column;align-items:center;gap:12px;min-width:0}
+.pos{font:italic 500 20px var(--display);color:var(--brass)}
+.card{width:100%;max-width:210px;aspect-ratio:7/12;perspective:1000px}
+.inner{position:relative;width:100%;height:100%;transition:transform .8s cubic-bezier(.3,.7,.2,1);transform-style:preserve-3d}
+.card.open .inner{transform:rotateY(180deg)}
+.face,.back{position:absolute;inset:0;border-radius:12px;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
+.back{border:2px solid var(--brass);background:
+  radial-gradient(circle at 50% 50%,transparent 22%,color-mix(in srgb,var(--brass) 40%,transparent) 23%,transparent 24.5%),
+  repeating-linear-gradient(45deg,color-mix(in srgb,var(--brass) 22%,transparent) 0 1px,transparent 1px 12px),
+  repeating-linear-gradient(-45deg,color-mix(in srgb,var(--brass) 22%,transparent) 0 1px,transparent 1px 12px),
+  var(--wine);box-shadow:0 12px 28px rgba(0,0,0,.5)}
+.back::after{content:"";position:absolute;inset:8px;border:1px solid color-mix(in srgb,var(--brass) 70%,transparent);border-radius:8px}
+.face{transform:rotateY(180deg);background:var(--card);color:var(--card-ink);border:2px solid var(--brass);box-shadow:0 12px 28px rgba(0,0,0,.5)}
+.face .art{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:10% 8% 9%;transition:transform .4s}
+.face.rev .art{transform:rotate(180deg)}
+.face::after{content:"";position:absolute;inset:6px;border:1px solid color-mix(in srgb,var(--card-ink) 35%,transparent);border-radius:8px;pointer-events:none}
+.num{font:700 clamp(14px,2.6vw,22px) var(--display);letter-spacing:.06em}
+.face svg{width:72%;height:auto;display:block}
+.cname{font:700 clamp(13px,2.4vw,19px)/1.1 var(--display);text-wrap:balance}
+.meaning{opacity:0;transform:translateY(6px);transition:opacity .5s .5s, transform .5s .5s;max-width:30ch;text-align:center}
+.slot.shown .meaning{opacity:1;transform:none}
+.meaning h3{font:700 22px/1.15 var(--display);margin:0 0 4px;text-wrap:balance}
+.badge{display:inline-block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--brass);margin-bottom:6px}
+.meaning p{margin:0;color:var(--ink);font-size:16px}
+.meaning .kw{color:var(--muted);font-size:14px;margin-top:6px}
+.foot{color:var(--muted);font-size:14px;max-width:52ch;margin-top:8px}
+@media (max-width:620px){
+  .table{grid-template-columns:1fr;gap:28px}
+  .slot{display:grid;grid-template-columns:120px minmax(0,1fr);grid-template-areas:"pos pos" "card mean";text-align:left;align-items:start;gap:10px 16px}
+  .pos{grid-area:pos;text-align:left}
+  .card{grid-area:card;max-width:120px}
+  .meaning{grid-area:mean;text-align:left}
+}
+@media (prefers-reduced-motion:reduce){.inner,.meaning,.face .art{transition:none}}
+</style>
+</head>
+<body>
+<a href="../" style="position:relative;z-index:50;display:inline-block;margin:12px 0 0 16px;font:700 13px system-ui,sans-serif;padding:6px 12px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;text-decoration:none">← На главную</a>
+<canvas id="sky" aria-hidden="true"></canvas>
+<main class="wrap">
+  <div>
+    <div class="eyebrow">Расклад на три карты</div>
+    <h1>Три карты Таро</h1>
+  </div>
+  <p class="lead">Задай вопрос про себя, сосредоточься на нём и нажми кнопку. Значения появятся под картами, а связать их с вопросом предстоит тебе.</p>
+  <div class="spreads" role="group" aria-label="Вид расклада" id="spreads"></div>
+  <label class="opts"><input type="checkbox" id="rev" checked> Учитывать перевёрнутые карты</label>
+  <button class="draw" id="draw">Вытянуть карты</button>
+  <section class="table" id="table" aria-live="polite"></section>
+  <p class="foot">Колода из 78 карт: 22 Старших аркана и 56 Младших. Карты в одном раскладе не повторяются. Это развлечение, а не предсказание.</p>
+</main>
+
+<script>
+const MAJOR=[
+["Шут","0","Новое начало, лёгкость, доверие к пути. Можно сделать шаг в неизвестность.","Безрассудство, риск без подготовки, наивность."],
+["Маг","I","Сила воли и умения. У тебя уже есть всё, чтобы начать.","Нераскрытые способности, хитрость, обман."],
+["Верховная Жрица","II","Интуиция и тайное знание. Ответ уже внутри тебя, прислушайся.","Скрытые мотивы, ты не слушаешь свой внутренний голос."],
+["Императрица","III","Изобилие, забота, творчество. Время, когда всё растёт.","Застой, чрезмерная опека, зависимость от других."],
+["Император","IV","Порядок, стабильность, контроль. Нужна структура и план.","Упрямство, жёсткость, давление."],
+["Иерофант","V","Традиции, учёба, наставник. Стоит обратиться к опыту других.","Бунт против правил, свой собственный путь."],
+["Влюблённые","VI","Любовь, гармония и важный выбор сердцем.","Разлад, сомнения, неверный выбор."],
+["Колесница","VII","Движение вперёд и победа через силу воли.","Потеря направления, нет контроля."],
+["Сила","VIII","Мягкая сила, смелость, терпение. Справишься без грубости.","Неуверенность в себе, вспыльчивость."],
+["Отшельник","IX","Уединение и поиск ответов внутри себя.","Одиночество, замкнутость, отрыв от людей."],
+["Колесо Фортуны","X","Перемены, удача, поворот судьбы.","Невезение, сопротивление переменам."],
+["Справедливость","XI","Честность, баланс, всё возвращается.","Несправедливость, уход от ответственности."],
+["Повешенный","XII","Пауза. Посмотри на ситуацию под другим углом.","Застревание, напрасное ожидание."],
+["Смерть","XIII","Конец одного этапа и начало нового. Трансформация, а не беда.","Страх перемен, цепляние за прошлое."],
+["Умеренность","XIV","Баланс, терпение, золотая середина.","Крайности, спешка, дисбаланс."],
+["Дьявол","XV","Привязанности, соблазны, то, что держит тебя.","Освобождение от того, что держало."],
+["Башня","XVI","Внезапный перелом, рушатся иллюзии, приходит правда.","Удалось избежать встряски, или ты её боишься."],
+["Звезда","XVII","Надежда, вдохновение, исцеление.","Уныние, потеря веры в себя."],
+["Луна","XVIII","Иллюзии, страхи, неясность. Не всё таково, каким кажется.","Туман рассеивается, страхи отступают."],
+["Солнце","XIX","Радость, успех, ясность. Одна из самых счастливых карт.","Временная грусть, слишком большие ожидания."],
+["Суд","XX","Пробуждение, второй шанс, подведение итогов.","Сомнения в себе, нерешительность."],
+["Мир","XXI","Завершение, целостность, цель достигнута.","Незаконченное дело, не хватает последнего шага."]
+];
+const RANKS=["Туз","Двойка","Тройка","Четвёрка","Пятёрка","Шестёрка","Семёрка","Восьмёрка","Девятка","Десятка","Паж","Рыцарь","Королева","Король"];
+const RSHORT=["A","2","3","4","5","6","7","8","9","10","Паж","Рыцарь","Королева","Король"];
+const SUITS={
+wands:{gen:"Жезлов",kw:"Жезлы: энергия, действие, творчество",m:[
+["Вдохновение, новый проект, искра.","Задержки, пропал запал."],["Планирование, выбор пути.","Страх неизвестности."],["Первые результаты, взгляд в будущее.","Разочарование в планах, задержки."],["Праздник, дом, стабильность.","Нестабильность, отложенная радость."],["Соперничество, споры.","Избегание конфликта, внутренняя борьба."],["Победа, признание.","Гордыня или отсутствие признания."],["Отстаивание своей позиции.","Усталость, желание сдаться."],["Быстрые события, новости.","Задержки, суета."],["Стойкость, последний рывок.","Истощение, подозрительность."],["Перегрузка, слишком много ответственности.","Пора сбросить лишний груз."],["Любопытство, новые идеи, весточка.","Нетерпение, пустые затеи."],["Энергия, приключения, порыв.","Безрассудство, спешка."],["Уверенность, харизма, тепло.","Ревность, неуверенность."],["Лидерство, видение цели.","Властность, импульсивность."]]},
+cups:{gen:"Кубков",kw:"Кубки: чувства, отношения, мечты",m:[
+["Новые чувства, эмоциональное начало.","Закрытость, подавленные эмоции."],["Взаимность, союз двоих.","Недопонимание, разлад."],["Дружба, праздник.","Сплетни, излишества."],["Апатия, не замечаешь предложений.","Выход из скуки, новый интерес."],["Потеря, сожаление.","Принятие, движение дальше."],["Ностальгия, детство, доброта.","Жизнь прошлым."],["Мечты, иллюзии, слишком много вариантов.","Ясность, пора выбрать."],["Уход в поисках большего.","Страх уйти, метания."],["Исполнение желаний.","Самодовольство, не то, чего ждал(а)."],["Счастье, гармония в семье.","Разлад дома."],["Чувствительность, творческая весточка.","Эмоциональная незрелость."],["Романтика, приглашение.","Капризность, разочарование."],["Сочувствие, интуиция.","Зависимость от чужих эмоций."],["Эмоциональная зрелость, спокойствие.","Перепады настроения, манипуляции."]]},
+swords:{gen:"Мечей",kw:"Мечи: мысли, правда, конфликты",m:[
+["Ясность, прорыв, истина.","Путаница, неверные выводы."],["Трудный выбор, тупик.","Слишком много информации."],["Боль, разочарование.","Восстановление после боли."],["Отдых, передышка.","Беспокойство, выгорание."],["Конфликт, победа любой ценой.","Примирение."],["Переход к спокойствию.","Нерешённые проблемы тянутся за тобой."],["Хитрость, скрытность.","Правда выходит наружу."],["Ощущение ловушки, ограничения.","Освобождение."],["Тревога, бессонные мысли.","Страхи отпускают."],["Болезненный финал, дно.","Худшее позади."],["Любознательность, бдительность.","Сплетни, болтливость."],["Напор, прямота.","Поспешность, грубость."],["Ясный ум, независимость.","Холодность, резкость."],["Интеллект, справедливость.","Жёсткость, злоупотребление властью."]]},
+pentacles:{gen:"Пентаклей",kw:"Пентакли: деньги, учёба, работа, тело",m:[
+["Новая возможность, достаток.","Упущенный шанс."],["Баланс, жонглирование делами.","Перегруз, всё сыплется."],["Командная работа, мастерство.","Несогласованность в команде."],["Накопление, контроль.","Жадность или, наоборот, щедрость."],["Трудности, нехватка.","Выход из трудностей."],["Щедрость, помощь.","Долги, неравенство."],["Терпение, ожидание урожая.","Нетерпение, напрасные усилия."],["Усердие, учёба, мастерство.","Халтура, работа на отвали."],["Независимость, комфорт.","Зависимость от других."],["Благополучие, семья, наследие.","Потери, разногласия в семье."],["Учёба, новые цели.","Лень, отложенные дела."],["Трудолюбие, надёжность.","Скука, застой."],["Практичность, забота.","Запущенные дела."],["Успех, обеспеченность.","Жадность, упрямство."]]}
+};
+const DECK=[];
+MAJOR.forEach(([n,num,u,r])=>DECK.push({name:n,num,suit:"major",up:u,rev:r,kw:"Старший аркан"}));
+for(const [s,o] of Object.entries(SUITS))o.m.forEach(([u,r],i)=>DECK.push({name:`${RANKS[i]} ${o.gen}`,num:RSHORT[i],suit:s,up:u,rev:r,kw:o.kw}));
+
+const SPREADS=[["Прошлое","Настоящее","Будущее"],["Ситуация","Препятствие","Совет"],["Ты","Другой человек","Ваша связь"]];
+let spread=0;
+
+const GLYPH={
+major:`<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="50" cy="50" r="18" fill="currentColor" fill-opacity=".12"/>${Array.from({length:12},(_,i)=>{const a=i*Math.PI/6,l=i%2?34:44;return`<line x1="${50+Math.cos(a)*24}" y1="${50+Math.sin(a)*24}" x2="${50+Math.cos(a)*l}" y2="${50+Math.sin(a)*l}"/>`}).join("")}<circle cx="50" cy="50" r="6" fill="currentColor"/></svg>`,
+wands:`<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="34" y1="88" x2="66" y2="12"/><path d="M58 30c8-4 14-2 18 2-6 2-12 1-18-2zM46 58c-8-4-14-2-18 2 6 2 12 1 18-2zM54 42c7 1 11 5 12 10-5-1-10-4-12-10z" fill="currentColor" fill-opacity=".25"/></svg>`,
+cups:`<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"><path d="M26 20h48c0 22-8 36-24 38-16-2-24-16-24-38z" fill="currentColor" fill-opacity=".15"/><path d="M50 58v20M34 84h32"/><path d="M30 30h40" stroke-width="1.5"/></svg>`,
+swords:`<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M50 8l6 14v46h-12V22z" fill="currentColor" fill-opacity=".15"/><line x1="32" y1="70" x2="68" y2="70"/><line x1="50" y1="70" x2="50" y2="86"/><circle cx="50" cy="90" r="4" fill="currentColor"/></svg>`,
+pentacles:`<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"><circle cx="50" cy="50" r="38" fill="currentColor" fill-opacity=".1"/><circle cx="50" cy="50" r="32"/>${(()=>{const p=[0,2,4,1,3].map(i=>{const a=-Math.PI/2+i*2*Math.PI/5;return`${(50+Math.cos(a)*30).toFixed(1)},${(50+Math.sin(a)*30).toFixed(1)}`});return`<polygon points="${p.join(" ")}"/>`})()}</svg>`
+};
+const COLOR={major:"#7a2f2f",wands:"#8a4b14",cups:"#1f4f6b",swords:"#3b4250",pentacles:"#4a5a1e"};
+
+const table=document.getElementById("table"),btn=document.getElementById("draw"),revBox=document.getElementById("rev");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function renderSpreads(){
+  const el=document.getElementById("spreads");
+  el.innerHTML=SPREADS.map((s,i)=>`<button class="chip" data-i="${i}" aria-pressed="${i===spread}">${s.join(" · ")}</button>`).join("");
+  el.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{spread=+b.dataset.i;renderSpreads();table.querySelectorAll(".pos").forEach((p,i)=>p.textContent=SPREADS[spread][i])});
+}
+
+function slots(cards){
+  table.innerHTML=SPREADS[spread].map((pos,i)=>{
+    const c=cards&&cards[i];
+    return `<div class="slot"><div class="pos">${pos}</div>
+     <div class="card"><div class="inner"><div class="back"></div>
+      <div class="face${c&&c.r?" rev":""}" style="color:${c?COLOR[c.suit]:"inherit"}">${c?`<div class="art"><div class="num">${esc(c.num)}</div>${GLYPH[c.suit]}<div class="cname">${esc(c.name)}</div></div>`:""}</div>
+     </div></div>
+     <div class="meaning">${c?`<span class="badge">${c.r?"Перевёрнутая":"Прямая"}</span><h3>${esc(c.name)}</h3><p>${esc(c.r?c.rev:c.up)}</p><p class="kw">${esc(c.kw)}</p>`:""}</div></div>`}).join("");
+}
+
+function draw(){
+  btn.disabled=true;
+  const pool=DECK.slice(),picked=[];
+  const rnd=n=>{const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n};
+  for(let i=0;i<3;i++){const c=pool.splice(rnd(pool.length),1)[0];picked.push({...c,r:revBox.checked&&rnd(2)===1})}
+  slots(picked);
+  const s=table.querySelectorAll(".slot");
+  s.forEach((el,i)=>setTimeout(()=>{el.querySelector(".card").classList.add("open");el.classList.add("shown");if(i===2)setTimeout(()=>{btn.disabled=false;btn.textContent="Вытянуть заново"},700)},350+i*650));
+}
+btn.onclick=draw;
+renderSpreads();slots();
+
+// starry sky
+const cv=document.getElementById("sky"),cx=cv.getContext("2d");let stars=[];
+function size(){cv.width=innerWidth*devicePixelRatio;cv.height=innerHeight*devicePixelRatio;stars=Array.from({length:Math.round(innerWidth*innerHeight/6000)},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height,r:(Math.random()*1.2+.3)*devicePixelRatio,p:Math.random()*6.28}))}
+const still=matchMedia("(prefers-reduced-motion: reduce)").matches;
+function tick(t){cx.clearRect(0,0,cv.width,cv.height);for(const s of stars){cx.globalAlpha=.25+.45*(still?.6:(Math.sin(t/1400+s.p)+1)/2);cx.fillStyle="#efe3c4";cx.beginPath();cx.arc(s.x,s.y,s.r,0,6.28);cx.fill()}if(!still)requestAnimationFrame(tick)}
+addEventListener("resize",()=>{size();if(still)tick(0)});size();requestAnimationFrame(tick);
+</script>
+</body>
+</html>
