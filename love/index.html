@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Совместимость по именам</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Nunito:wght@500;700;800&display=swap">
+<style>[hidden]{display:none!important}body{margin:0}.home{position:relative;z-index:50;display:inline-block;margin:12px 0 0 max(16px,env(safe-area-inset-left,0px));font:700 13px system-ui,sans-serif;padding:6px 12px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;text-decoration:none}.home:focus-visible{outline:2px solid currentColor;outline-offset:2px}</style>
+<style>
+/* Layout: a note passed in class — two names joined by a heart meter, verdict card below */
+:root{
+  --bg:#fbeef2; --surface:#ffffff; --ink:#3a1d2b; --muted:#8a6474; --line:#efcfda; --love:#e2457a; --friend:#2f9c8f; --fill:#fde2ea;
+  --display:"Comfortaa",system-ui,sans-serif; --body:"Nunito",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{--bg:#1d1218;--surface:#2a1a22;--ink:#f7e8ee;--muted:#c09aab;--line:#46303b;--love:#ff6e9c;--friend:#4cc7b7;--fill:#3a2430;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);min-height:100vh}
+.wrap{max-width:620px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 44px;display:flex;flex-direction:column;gap:18px}
+h1{font:700 clamp(30px,7vw,46px)/1.05 var(--display);margin:4px 0 0;text-wrap:balance}
+.lead{color:var(--muted);margin:-6px 0 0;font-weight:500}
+.modes{display:flex;gap:8px}
+.mode{font:800 15px var(--body);border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 16px;cursor:pointer}
+.mode[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.names{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:center}
+.names input{width:100%;font:700 18px var(--body);color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:13px 14px;text-align:center;min-width:0}
+.names input:focus{outline:none;border-color:var(--accent)}
+.plus{font:700 28px var(--display);color:var(--accent)}
+.go{font:800 18px var(--body);background:var(--accent);color:#fff;border:none;border-radius:999px;padding:14px 22px;cursor:pointer;align-self:center;min-width:220px}
+.go:focus-visible,.mode:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.result{background:var(--surface);border:2px solid var(--line);border-radius:22px;padding:22px clamp(16px,4vw,28px);display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.pair{font:700 20px var(--display);text-wrap:balance}
+.meter{position:relative;width:150px;height:140px}
+.meter svg{width:100%;height:100%;display:block}
+.pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding-bottom:10px;font:800 34px var(--body);font-variant-numeric:tabular-nums;color:var(--ink)}
+.verdict{font:700 22px/1.2 var(--display);color:var(--accent);margin:4px 0 0;text-wrap:balance}
+.text{margin:0;max-width:46ch}
+.facts{list-style:none;padding:0;margin:6px 0 0;display:flex;flex-direction:column;gap:6px;width:100%;text-align:left}
+.facts li{background:var(--fill);border-radius:12px;padding:9px 12px;font-weight:500}
+.note{color:var(--muted);font-size:14px;text-align:center;margin:0}
+@media (max-width:420px){.names{grid-template-columns:1fr}.plus{text-align:center}}
+</style>
+</head>
+<body>
+<a class="home" href="../">← На главную</a>
+<main class="wrap" id="root">
+  <h1>Совместимость по именам</h1>
+  <p class="lead">Впиши два имени, и древняя школьная математика всё посчитает.</p>
+  <div class="modes" role="group" aria-label="Что проверяем">
+    <button class="mode" data-m="love" aria-pressed="true">Любовь</button>
+    <button class="mode" data-m="friend" aria-pressed="false">Дружба</button>
+  </div>
+  <form class="names" id="form">
+    <input id="a" placeholder="Первое имя" maxlength="30" autocomplete="off" required>
+    <span class="plus" id="plus">+</span>
+    <input id="b" placeholder="Второе имя" maxlength="30" autocomplete="off" required>
+  </form>
+  <button class="go" id="go" type="submit" form="form">Посчитать</button>
+  <section class="result" id="result" hidden aria-live="polite">
+    <div class="pair" id="pair"></div>
+    <div class="meter">
+      <svg viewBox="0 0 100 92" aria-hidden="true"><defs><clipPath id="hc"><path d="M50 88C20 66 4 50 4 30 4 15 15 4 29 4c9 0 16 5 21 12 5-7 12-12 21-12 14 0 25 11 25 26 0 20-16 36-46 58z"/></clipPath></defs>
+        <rect width="100" height="92" fill="var(--fill)" clip-path="url(#hc)"/>
+        <rect id="lvl" x="0" y="92" width="100" height="92" fill="var(--accent)" clip-path="url(#hc)"/>
+        <path d="M50 88C20 66 4 50 4 30 4 15 15 4 29 4c9 0 16 5 21 12 5-7 12-12 21-12 14 0 25 11 25 26 0 20-16 36-46 58z" fill="none" stroke="var(--accent)" stroke-width="3"/></svg>
+      <div class="pct" id="pct">0%</div>
+    </div>
+    <p class="verdict" id="verdict"></p>
+    <p class="text" id="text"></p>
+    <ul class="facts" id="facts"></ul>
+  </section>
+  <p class="note">Одни и те же имена всегда дают один и тот же результат. Это шутка, а не наука!</p>
+</main>
+
+<script>
+const T={
+love:{plus:"❤",tiers:[
+[0,"Как кошка с собакой","Вы из разных вселенных. Зато вам точно не будет скучно спорить."],
+[25,"Лучше дружить","Искры пока нет, но кто знает: у вас ещё всё впереди."],
+[45,"Есть что-то","Симпатия чувствуется. Хотя бы делитесь жвачкой."],
+[65,"Хорошая пара","Вы отлично подходите друг другу. Окружающие уже что-то подозревают."],
+[82,"Почти идеально","Вы как пельмени и сметана. Звучит странно, но вместе — лучше всего."],
+[95,"Судьба!","Таких совпадений не бывает. Пора выбирать общую песню."]],
+facts:["Вместе вы бы открыли кафе с одними десертами","Ваша общая суперсила — опаздывать красиво","Вы бы вместе смотрели «Кухню» до утра","Ваш общий питомец — капибара по имени Пельмень","Вы бы спорили, кто первый написал «привет»","На свидании вы бы съели весь попкорн до начала фильма","Ваша пара в фильме называлась бы «Неожиданно, но мило»","Вы бы ссорились из-за последней печеньки","Вместе вы бы завели канал про котиков","Вы бы держались за руки и молчали в столовой","Ваша общая песня играет в каждом ТЦ","Вы бы вместе сбежали с физры (не надо так)"]},
+friend:{plus:"+",tiers:[
+[0,"Просто соседи по парте","Вы вежливо киваете друг другу. Это тоже отношения!"],
+[25,"Приятели","Можно вместе пойти в столовую, но без секретов."],
+[45,"Хорошие друзья","Вы всегда поделитесь ответами на тест. Ну, почти всегда."],
+[65,"Лучшие друзья","Вы понимаете друг друга по одному взгляду через весь класс."],
+[82,"Не разлей вода","Вас уже путают, и учителя рассаживают вас специально."],
+[95,"Друзья навсегда","Вы будете вспоминать эту дружбу и в 80 лет на лавочке."]],
+facts:["Ваш общий талант — смеяться на самом тихом уроке","Вы бы вместе выиграли конкурс по поеданию пельменей","У вас есть шутка, которую больше никто не понимает","Вы бы вместе устроили ночёвку и не спали до утра","Вы бы вместе пошли на кастинг «Мастер Шеф» и победили","Ваш общий голосовой чат — легенда","Вы бы поделили последнюю шоколадку честно, пополам","Вместе вы бы сбежали на каникулы на море","Вы постоянно отправляете друг другу одни и те же мемы","Вы бы вместе завели огород на балконе","Вам дают одну двойку на двоих (за болтовню)","Вы бы вместе пережили зомби-апокалипсис"]}
+};
+let mode="love";const $=id=>document.getElementById(id);
+function hash(s){let h=2166136261;for(const c of s){h^=c.codePointAt(0);h=Math.imul(h,16777619)}return h>>>0}
+const norm=s=>s.trim().toLowerCase().replace(/ё/g,"е").replace(/\s+/g," ");
+function setMode(m){mode=m;document.getElementById("root").style.setProperty("--accent",`var(--${m})`);
+  document.querySelectorAll(".mode").forEach(b=>b.setAttribute("aria-pressed",b.dataset.m===m));$("plus").textContent=T[m].plus;
+  if(!$("result").hidden)calc()}
+document.querySelectorAll(".mode").forEach(b=>b.onclick=()=>setMode(b.dataset.m));
+function calc(){
+  const a=norm($("a").value),b=norm($("b").value);if(!a||!b)return;
+  const key=[a,b].sort().join("|")+"|"+mode;let h=hash(key);
+  let p=a===b?100:12+h%89;
+  const t=T[mode],tier=[...t.tiers].reverse().find(x=>p>=x[0]);
+  const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+  $("pair").textContent=`${cap(a)} ${t.plus} ${cap(b)}`;
+  $("verdict").textContent=tier[1];$("text").textContent=a===b?"Ты совместим(а) сам(а) с собой на все сто. Так и надо!":tier[2];
+  const f=t.facts.slice(),pick=[];for(let i=0;i<3;i++){h=Math.imul(h^(h>>>15),2246822507)>>>0;pick.push(f.splice(h%f.length,1)[0])}
+  $("facts").innerHTML="";pick.forEach(x=>{const li=document.createElement("li");li.textContent=x;$("facts").appendChild(li)});
+  $("result").hidden=false;
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches,dur=reduce?0:1100,t0=performance.now();
+  (function anim(now){const k=dur?Math.min(1,(now-t0)/dur):1,e=1-Math.pow(1-k,3),v=Math.round(p*e);
+    $("pct").textContent=v+"%";$("lvl").setAttribute("y",92-92*v/100);if(k<1)requestAnimationFrame(anim)})(t0);
+}
+$("form").addEventListener("submit",e=>{e.preventDefault();calc();$("result").scrollIntoView({behavior:"smooth",block:"nearest"})});
+setMode("love");
+</script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Шар судьбы</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@600;800&family=Nunito:wght@500;700&display=swap">
+<style>[hidden]{display:none!important}body{margin:0}.home{position:relative;z-index:50;display:inline-block;margin:12px 0 0 max(16px,env(safe-area-inset-left,0px));font:700 13px system-ui,sans-serif;padding:6px 12px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;text-decoration:none}.home:focus-visible{outline:2px solid currentColor;outline-offset:2px}</style>
+<style>
+/* Layout: one object on a dark felt table — the ball dead center, question above, recent answers below. Single deliberate dark palette */
+:root{
+  color-scheme:dark;
+  --bg:#0d0b16; --glow:#2a1f4d; --ink:#ece8f7; --muted:#9a93b5; --tri:#2346c9; --tri-ink:#e9eeff; --field:#1a1630; --line:#342c58;
+  --display:"Montserrat Alternates",system-ui,sans-serif; --body:"Nunito",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(70% 55% at 50% 45%,var(--glow),var(--bg) 75%) fixed,var(--bg);color:var(--ink);font-family:var(--body)}
+.home{background:rgba(255,255,255,.12)!important}
+.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 40px;display:flex;flex-direction:column;align-items:center;gap:20px;text-align:center}
+h1{font:800 clamp(32px,7vw,48px)/1 var(--display);margin:0}
+.lead{color:var(--muted);margin:-8px 0 0}
+.q{width:100%;font:500 17px var(--body);color:var(--ink);background:var(--field);border:1.5px solid var(--line);border-radius:14px;padding:13px 16px;text-align:center}
+.q::placeholder{color:var(--muted)}
+.q:focus{outline:2px solid var(--tri);outline-offset:2px}
+.ball{width:min(78vw,330px);aspect-ratio:1;border-radius:50%;border:none;padding:0;cursor:pointer;position:relative;
+  background:radial-gradient(circle at 34% 28%,#5a5670 0,#25232f 18%,#0b0a10 55%,#000 100%);
+  box-shadow:0 30px 60px rgba(0,0,0,.6),inset -12px -18px 40px rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center}
+.ball::after{content:"";position:absolute;width:22%;height:12%;left:22%;top:14%;border-radius:50%;background:rgba(255,255,255,.22);filter:blur(6px);transform:rotate(-30deg)}
+.ball:focus-visible{outline:3px solid var(--tri);outline-offset:6px}
+.window{width:52%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#141327 0,#07060f 70%);box-shadow:inset 0 0 0 5px #1f1d2c,inset 0 6px 18px rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.eight{font:800 clamp(56px,16vw,92px)/1 var(--display);color:#111;background:#f4f2fa;width:80%;aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.tri{width:96%;aspect-ratio:1.1;background:var(--tri);clip-path:polygon(50% 100%,0 6%,100% 6%);display:flex;align-items:flex-start;justify-content:center;padding:14% 18% 0;opacity:0;transform:scale(.6) rotate(-12deg);transition:opacity .6s, transform .6s}
+.tri.show{opacity:1;transform:none}
+.tri span{font:800 clamp(11px,3.2vw,15px)/1.15 var(--display);color:var(--tri-ink);text-transform:uppercase;letter-spacing:.02em;text-wrap:balance}
+.shake{animation:shake .7s ease-in-out}
+@keyframes shake{10%,50%,90%{transform:translate(-8px,4px) rotate(-6deg)}30%,70%{transform:translate(8px,-4px) rotate(6deg)}}
+.tip{color:var(--muted);font-size:15px;margin:0}
+.hist{width:100%;display:flex;flex-direction:column;gap:8px;text-align:left}
+.hist h2{font:700 13px var(--body);text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:0}
+.item{background:var(--field);border:1px solid var(--line);border-radius:12px;padding:10px 14px;display:flex;flex-direction:column;gap:2px}
+.item i{color:var(--muted);font-style:normal;font-size:14px}
+.item b{font-family:var(--display);font-weight:600}
+@media (prefers-reduced-motion:reduce){.shake{animation:none}.tri{transition:none}}
+</style>
+</head>
+<body>
+<a class="home" href="../">← На главную</a>
+<main class="wrap">
+  <h1>Шар судьбы</h1>
+  <p class="lead">Задай вопрос, на который можно ответить «да» или «нет».</p>
+  <input class="q" id="q" type="text" maxlength="120" placeholder="Например: меня спросят на информатике?" autocomplete="off">
+  <button class="ball" id="ball" aria-label="Потрясти шар">
+    <span class="window"><span class="eight" id="eight">8</span><span class="tri" id="tri" hidden><span id="ans"></span></span></span>
+  </button>
+  <p class="tip">Нажми на шар или Enter. Вопрос можно не писать, а просто задумать.</p>
+  <section class="hist" id="hist" hidden><h2>Прошлые ответы</h2><div id="list" style="display:flex;flex-direction:column;gap:8px"></div></section>
+</main>
+
+<script>
+const A=[
+"Бесспорно","Предрешено","Никаких сомнений","Определённо да","Можешь быть уверен(а)",
+"Мне кажется — да","Вероятнее всего","Хорошие перспективы","Знаки говорят — да","Да",
+"Пока не ясно, попробуй снова","Спроси позже","Лучше не рассказывать","Сейчас нельзя предсказать","Сконцентрируйся и спроси опять",
+"Даже не думай","Мой ответ — нет","По моим данным — нет","Перспективы не очень","Весьма сомнительно",
+"Звёзды говорят: съешь печеньку","Да, но сначала сделай домашку","Спроси у кота","Сто процентов. Ну, девяносто","Ахах, нет"
+];
+const $=id=>document.getElementById(id);let busy=false,hist=[];
+function rnd(n){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n}
+function ask(){
+  if(busy)return;busy=true;
+  const tri=$("tri"),ball=$("ball");
+  tri.classList.remove("show");
+  setTimeout(()=>{
+    ball.classList.remove("shake");void ball.offsetWidth;ball.classList.add("shake");
+    setTimeout(()=>{
+      const a=A[rnd(A.length)];$("ans").textContent=a;$("eight").hidden=true;tri.hidden=false;
+      requestAnimationFrame(()=>tri.classList.add("show"));
+      const q=$("q").value.trim();hist.unshift([q||"Вопрос про себя",a]);hist=hist.slice(0,5);
+      $("hist").hidden=false;
+      $("list").innerHTML=hist.map(([q,a])=>`<div class="item"><i></i><b></b></div>`).join("");
+      $("list").querySelectorAll(".item").forEach((el,i)=>{el.querySelector("i").textContent=hist[i][0];el.querySelector("b").textContent=hist[i][1]});
+      busy=false;
+    },700);
+  },tri.classList.contains("show")?250:0);
+}
+$("ball").onclick=ask;
+$("q").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();ask()}});
+</script>
+</body>
+</html>

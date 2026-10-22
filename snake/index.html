@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Змейка</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rubik:wght@500;700&display=swap">
+<style>[hidden]{display:none!important}body{margin:0}.home{position:relative;z-index:50;display:inline-block;margin:12px 0 0 max(16px,env(safe-area-inset-left,0px));font:700 13px system-ui,sans-serif;padding:6px 12px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;text-decoration:none}.home:focus-visible{outline:2px solid currentColor;outline-offset:2px}</style>
+<style>
+/* Layout: old phone in your hand — LCD screen with score strip, D-pad under it; single deliberate retro palette */
+:root{
+  color-scheme:dark;
+  --bg:#1f2419; --shell:#33402a; --shell-edge:#4a5a3c; --lcd:#b6c39a; --pix:#26331c; --pix-mid:#6f7f4f; --text:#dfe7c9; --muted:#9fae84; --key:#4f5f40;
+  --pixel:"Press Start 2P","Courier New",monospace; --body:"Rubik",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--body);margin:0}
+.home{background:rgba(255,255,255,.12)!important}
+.wrap{max-width:520px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 40px;display:flex;flex-direction:column;align-items:center;gap:16px}
+h1{font:400 clamp(20px,5vw,28px)/1.2 var(--pixel);margin:4px 0 0;color:var(--lcd);letter-spacing:.04em}
+.phone{width:100%;background:var(--shell);border:3px solid var(--shell-edge);border-radius:28px;padding:18px 18px 22px;display:flex;flex-direction:column;gap:16px;box-shadow:0 18px 40px rgba(0,0,0,.45)}
+.screen{background:var(--lcd);border-radius:10px;padding:10px;box-shadow:inset 0 0 0 3px var(--pix-mid)}
+.strip{display:flex;justify-content:space-between;font:400 11px var(--pixel);color:var(--pix);padding:2px 2px 8px}
+canvas{display:block;width:100%;aspect-ratio:1;max-width:100%;touch-action:none;border:2px solid var(--pix)}
+.msg{font:400 11px/1.8 var(--pixel);color:var(--pix);text-align:center;min-height:2.2em;padding-top:8px}
+.controls{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}
+.dpad{display:grid;grid-template-columns:repeat(3,58px);grid-template-rows:repeat(3,58px);gap:4px}
+.k{font:700 22px var(--body);background:var(--key);color:var(--text);border:none;border-radius:12px;cursor:pointer;box-shadow:0 4px 0 #1d2616}
+.k:active{transform:translateY(3px);box-shadow:0 1px 0 #1d2616}
+.side{display:flex;flex-direction:column;gap:10px;min-width:0}
+.btn{font:400 11px var(--pixel);background:var(--lcd);color:var(--pix);border:none;border-radius:999px;padding:12px 14px;cursor:pointer;box-shadow:0 4px 0 #1d2616}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #1d2616}
+label{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--muted);cursor:pointer}
+label input{accent-color:var(--lcd);width:18px;height:18px}
+button:focus-visible{outline:2px solid var(--lcd);outline-offset:3px}
+.help{color:var(--muted);font-size:14px;text-align:center;margin:0;max-width:44ch}
+@media (max-width:400px){.dpad{grid-template-columns:repeat(3,50px);grid-template-rows:repeat(3,50px)}}
+</style>
+</head>
+<body>
+<a class="home" href="../">← На главную</a>
+<main class="wrap">
+  <h1>ЗМЕЙКА</h1>
+  <div class="phone">
+    <div class="screen">
+      <div class="strip"><span>СЧЁТ <b id="score">0</b></span><span>РЕКОРД <b id="best">0</b></span></div>
+      <canvas id="cv" width="400" height="400" aria-label="Игровое поле"></canvas>
+      <div class="msg" id="msg">НАЖМИ «СТАРТ» ИЛИ ПРОБЕЛ</div>
+    </div>
+    <div class="controls">
+      <div class="dpad">
+        <span></span><button class="k" data-d="up" aria-label="Вверх">▲</button><span></span>
+        <button class="k" data-d="left" aria-label="Влево">◀</button><span></span><button class="k" data-d="right" aria-label="Вправо">▶</button>
+        <span></span><button class="k" data-d="down" aria-label="Вниз">▼</button><span></span>
+      </div>
+      <div class="side">
+        <button class="btn" id="start">СТАРТ</button>
+        <label><input type="checkbox" id="walls"> Сквозь стены</label>
+      </div>
+    </div>
+  </div>
+  <p class="help">Стрелки или WASD, пробел — пауза. На телефоне можно свайпать прямо по экрану.</p>
+</main>
+
+<script>
+const N=20,cv=document.getElementById("cv"),cx=cv.getContext("2d");
+const C={lcd:"#b6c39a",pix:"#26331c",mid:"#6f7f4f",dot:"#a7b58a"};
+const DIR={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+let best=+store.get("snake-best")||0;document.getElementById("best").textContent=best;
+let snake,dir,queue,food,score,speed,state="idle",timer=null,wrap=false;
+const wallsBox=document.getElementById("walls");
+wallsBox.checked=store.get("snake-walls")==="1";wallsBox.onchange=()=>store.set("snake-walls",wallsBox.checked?"1":"0");
+
+function size(){const r=cv.getBoundingClientRect(),d=devicePixelRatio||1;cv.width=Math.round(r.width*d);cv.height=Math.round(r.width*d)}
+function reset(){snake=[[9,10],[8,10],[7,10]];dir="right";queue=[];score=0;speed=140;place();upd()}
+function place(){do{food=[Math.floor(Math.random()*N),Math.floor(Math.random()*N)]}while(snake.some(s=>s[0]===food[0]&&s[1]===food[1]))}
+const btn=t=>document.getElementById("start").textContent=t;
+function upd(){document.getElementById("score").textContent=score}
+function msg(t){document.getElementById("msg").textContent=t}
+function start(){if(state==="run")return pause();if(state!=="pause")reset();wrap=wallsBox.checked;state="run";msg("");btn("ПАУЗА");loop()}
+function pause(){if(state!=="run")return;state="pause";clearTimeout(timer);msg("ПАУЗА");btn("ДАЛЬШЕ");draw()}
+function loop(){step();draw();if(state==="run")timer=setTimeout(loop,speed)}
+function turn(d){
+  if(state==="idle"||state==="over"){start();}
+  const last=queue.length?queue[queue.length-1]:dir;
+  const [a,b]=DIR[d],[c,e]=DIR[last];
+  if(a===-c&&b===-e||d===last)return;
+  if(queue.length<3)queue.push(d);
+}
+function step(){
+  if(queue.length)dir=queue.shift();
+  const [dx,dy]=DIR[dir];let x=snake[0][0]+dx,y=snake[0][1]+dy;
+  if(wrap){x=(x+N)%N;y=(y+N)%N}
+  const eat=x===food[0]&&y===food[1];
+  const body=eat?snake:snake.slice(0,-1);
+  if(x<0||y<0||x>=N||y>=N||body.some(s=>s[0]===x&&s[1]===y)){over();return}
+  snake.unshift([x,y]);
+  if(eat){score++;speed=Math.max(60,speed-4);upd();if(snake.length===N*N){over(true);return}place()}else snake.pop();
+}
+function over(won){
+  state="over";clearTimeout(timer);
+  if(score>best){best=score;store.set("snake-best",best);document.getElementById("best").textContent=best;msg(`НОВЫЙ РЕКОРД: ${score}! ПРОБЕЛ — ЕЩЁ`)}
+  else msg(won?"ТЫ ЗАПОЛНИЛ ВСЁ ПОЛЕ!":`КОНЕЦ ИГРЫ: ${score}. ПРОБЕЛ — ЕЩЁ`);
+  btn("ЕЩЁ РАЗ");draw(true);
+}
+function draw(dead){
+  const W=cv.width,s=W/N;cx.fillStyle=C.lcd;cx.fillRect(0,0,W,W);
+  cx.fillStyle=C.dot;for(let i=0;i<N;i++)for(let j=0;j<N;j++)cx.fillRect(i*s+s/2-1,j*s+s/2-1,2,2);
+  if(!snake)return;
+  // food: a little apple
+  cx.fillStyle=C.pix;const fx=food[0]*s,fy=food[1]*s;
+  cx.beginPath();cx.arc(fx+s/2,fy+s*.56,s*.32,0,7);cx.fill();cx.fillRect(fx+s*.47,fy+s*.1,s*.08,s*.2);
+  snake.forEach(([x,y],i)=>{
+    cx.fillStyle=dead&&i===0?C.mid:C.pix;
+    const p=i?s*.1:s*.04;cx.fillRect(x*s+p,y*s+p,s-2*p,s-2*p);
+    if(i&&!dead){cx.fillStyle=C.mid;cx.fillRect(x*s+s*.38,y*s+s*.38,s*.24,s*.24)}
+  });
+  const [hx,hy]=snake[0],[dx,dy]=DIR[dir];cx.fillStyle=C.lcd;
+  const ex=hx*s+s/2+dx*s*.15,ey=hy*s+s/2+dy*s*.15,ox=dy*s*.2,oy=dx*s*.2;
+  cx.fillRect(ex+ox-s*.07,ey+oy-s*.07,s*.14,s*.14);cx.fillRect(ex-ox-s*.07,ey-oy-s*.07,s*.14,s*.14);
+}
+document.getElementById("start").onclick=()=>{start()};
+document.querySelectorAll(".k").forEach(b=>b.addEventListener("pointerdown",e=>{e.preventDefault();turn(b.dataset.d)}));
+const KEYS={ArrowUp:"up",ArrowDown:"down",ArrowLeft:"left",ArrowRight:"right",w:"up",s:"down",a:"left",d:"right",ц:"up",ы:"down",ф:"left",в:"right"};
+document.addEventListener("keydown",e=>{
+  if(e.key===" "){e.preventDefault();if(state==="run")pause();else{start()}return}
+  const d=KEYS[e.key]||KEYS[e.key.toLowerCase()];if(d){e.preventDefault();turn(d)}
+});
+let t0=null;
+cv.addEventListener("pointerdown",e=>{t0=[e.clientX,e.clientY]});
+cv.addEventListener("pointerup",e=>{if(!t0)return;const dx=e.clientX-t0[0],dy=e.clientY-t0[1];t0=null;
+  if(Math.max(Math.abs(dx),Math.abs(dy))<20){if(state!=="run"){start()}return}
+  turn(Math.abs(dx)>Math.abs(dy)?(dx>0?"right":"left"):(dy>0?"down":"up"))});
+document.addEventListener("visibilitychange",()=>{if(document.hidden)pause()});
+addEventListener("resize",()=>{size();draw(state==="over")});
+size();reset();draw();
+</script>
+</body>
+</html>

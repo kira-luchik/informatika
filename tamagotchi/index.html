@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Тамагочи</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@600;800&display=swap">
+<style>[hidden]{display:none!important}body{margin:0}.home{position:relative;z-index:50;display:inline-block;margin:12px 0 0 max(16px,env(safe-area-inset-left,0px));font:700 13px system-ui,sans-serif;padding:6px 12px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;text-decoration:none}.home:focus-visible{outline:2px solid currentColor;outline-offset:2px}</style>
+<style>
+/* Layout: the egg-shaped toy itself — screen with the pet and stat bars, four big buttons under it. Single pastel palette */
+:root{
+  color-scheme:light;
+  --bg:#f3eaff; --shell:#c9a7f5; --shell-dk:#a57fd8; --screen:#e6f2d6; --screen-ink:#33402a; --ink:#2e1f47; --muted:#6c5a87; --btn:#ffffff;
+  --food:#ff9f43; --fun:#ff6b9a; --energy:#4fb3ff; --clean:#3ccf9a;
+  --pixel:"Press Start 2P","Courier New",monospace; --body:"Nunito",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-family:var(--body)}
+.home{background:rgba(46,31,71,.6)!important}
+.wrap{max-width:460px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 40px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.egg{width:100%;background:radial-gradient(120% 90% at 30% 15%,#e2cbff,var(--shell) 55%,var(--shell-dk));border-radius:50% 50% 46% 46% / 40% 40% 34% 34%;padding:42px 26px 34px;box-shadow:0 20px 40px rgba(90,50,140,.3),inset 0 -10px 24px rgba(80,40,130,.25);display:flex;flex-direction:column;align-items:center;gap:16px}
+.brand{font:400 10px var(--pixel);color:#fff;letter-spacing:.12em;text-shadow:0 2px 0 var(--shell-dk)}
+.screen{width:100%;background:var(--screen);border-radius:18px;border:6px solid #8a6cb8;box-shadow:inset 0 4px 10px rgba(0,0,0,.15);padding:12px;color:var(--screen-ink);display:flex;flex-direction:column;gap:8px}
+.top{display:flex;justify-content:space-between;font:400 9px/1.6 var(--pixel);gap:8px}
+.top b{font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stage{position:relative;height:170px;display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+.stage svg{width:150px;height:150px;overflow:visible}
+.pet{transform-origin:50% 100%;animation:idle 1.6s ease-in-out infinite}
+.sleeping .pet{animation:breathe 3s ease-in-out infinite}
+.sad .pet{animation:none}
+.hop .pet{animation:hop .5s ease-out 2}
+@keyframes idle{50%{transform:translateY(-6px) scaleY(1.02)}}
+@keyframes breathe{50%{transform:scaleY(.95)}}
+@keyframes hop{40%{transform:translateY(-26px)}}
+.fx{position:absolute;top:8px;font:400 14px var(--pixel);animation:float 1.2s ease-out forwards}
+@keyframes float{to{transform:translateY(-30px);opacity:0}}
+.zzz{position:absolute;right:26%;top:10px;font:400 12px var(--pixel);animation:z 2s linear infinite}
+@keyframes z{0%{opacity:0;transform:translate(0,10px)}50%{opacity:1}100%{opacity:0;transform:translate(14px,-16px)}}
+.poop{position:absolute;bottom:4px;font-size:22px}
+.say{font:400 9px/1.7 var(--pixel);min-height:3.4em;text-align:center}
+.bars{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;width:100%}
+.bar{display:flex;flex-direction:column;gap:3px;font:800 13px var(--body);color:var(--ink);min-width:0}
+.bar i{display:block;height:10px;border-radius:99px;background:rgba(46,31,71,.15);overflow:hidden}
+.bar i span{display:block;height:100%;border-radius:99px;transition:width .5s}
+.bar.low{color:#c0392b}
+.acts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;width:100%}
+.act{display:flex;flex-direction:column;align-items:center;gap:4px;font:800 clamp(11px,3vw,13px) var(--body);min-width:0;overflow-wrap:anywhere;color:var(--ink);background:var(--btn);border:none;border-radius:16px;padding:10px 2px 8px;cursor:pointer;box-shadow:0 4px 0 var(--shell-dk)}
+.act:active{transform:translateY(3px);box-shadow:0 1px 0 var(--shell-dk)}
+.act:disabled{opacity:.45;cursor:default}
+.act .ic{font-size:24px;line-height:1}
+button:focus-visible,input:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.setup{width:100%;display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center}
+.setup h2{font:400 12px/1.6 var(--pixel);margin:0}
+.types{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}
+.type{background:var(--screen);border:3px solid transparent;border-radius:14px;padding:6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;font:800 13px var(--body);color:var(--screen-ink)}
+.type svg{width:70px;height:70px}
+.type[aria-pressed="true"]{border-color:var(--ink)}
+.setup input{width:100%;font:800 16px var(--body);border:2px solid #8a6cb8;border-radius:12px;padding:10px;text-align:center;background:#fff;color:var(--ink)}
+.go{font:400 11px var(--pixel);background:var(--ink);color:#fff;border:none;border-radius:999px;padding:13px 20px;cursor:pointer}
+.foot{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--muted);font-size:14px;text-align:center}
+.link{background:none;border:none;color:var(--muted);text-decoration:underline;font:700 14px var(--body);cursor:pointer}
+.confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;font-weight:800;color:var(--ink)}
+.mini{font:800 14px var(--body);border-radius:999px;padding:7px 14px;border:2px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer}
+.mini.danger{background:var(--ink);color:#fff}
+@media (prefers-reduced-motion:reduce){.pet,.zzz,.fx{animation:none!important}}
+</style>
+</head>
+<body>
+<a class="home" href="../">← На главную</a>
+<main class="wrap">
+  <div class="egg">
+    <div class="brand">ТАМАГОЧИ</div>
+    <div class="screen" id="screen"></div>
+    <div class="acts" id="acts"></div>
+  </div>
+  <div class="foot" id="foot"></div>
+</main>
+
+<script>
+const TYPES={
+cat:{name:"Котик",color:"#ffb36b",dark:"#d9813a"},
+dragon:{name:"Дракончик",color:"#7bd88f",dark:"#3fa25a"},
+slime:{name:"Слизнячок",color:"#8ec5ff",dark:"#4f8fd6"}
+};
+const RATE={food:7,fun:8,energy:5,clean:4}; // в час
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let P=store.get("tama"),pick="cat",confirmReset=false;
+const $=id=>document.getElementById(id);
+const clamp=v=>Math.max(0,Math.min(100,v));
+
+function petSVG(type,mood,sleeping){
+  const t=TYPES[type],c=t.color,d=t.dark;
+  let body="";
+  if(type==="cat")body=`<path d="M22 60 L28 22 L46 42 Q60 38 74 42 L92 22 L98 60 Q104 112 60 114 Q16 112 22 60Z" fill="${c}" stroke="${d}" stroke-width="3"/><path d="M30 34 L34 26 L40 38Z M90 34 L86 26 L80 38Z" fill="#ffd9e3"/><path d="M98 96 Q122 90 116 66" stroke="${d}" stroke-width="7" fill="none" stroke-linecap="round"/>`;
+  if(type==="dragon")body=`<path d="M36 34 L42 14 L52 32 M68 32 L78 14 L84 34" fill="${d}" stroke="${d}" stroke-width="3" stroke-linejoin="round"/><ellipse cx="60" cy="74" rx="42" ry="40" fill="${c}" stroke="${d}" stroke-width="3"/><path d="M18 64 Q2 54 8 40 Q18 52 24 52Z M102 64 Q118 54 112 40 Q102 52 96 52Z" fill="${d}"/><ellipse cx="60" cy="92" rx="22" ry="16" fill="#e9f9d8"/>`;
+  if(type==="slime")body=`<path d="M14 112 Q10 60 36 40 Q60 22 84 40 Q110 60 106 112Z" fill="${c}" stroke="${d}" stroke-width="3"/><ellipse cx="40" cy="52" rx="9" ry="5" fill="#fff" opacity=".6" transform="rotate(-30 40 52)"/>`;
+  const ey=type==="slime"?70:66;
+  let eyes,mouth;
+  if(sleeping){eyes=`<path d="M38 ${ey} q6 5 12 0 M70 ${ey} q6 5 12 0" stroke="#2e1f47" stroke-width="3" fill="none" stroke-linecap="round"/>`;mouth=`<circle cx="60" cy="${ey+16}" r="3" fill="#2e1f47"/>`}
+  else{eyes=`<circle cx="44" cy="${ey}" r="6" fill="#2e1f47"/><circle cx="76" cy="${ey}" r="6" fill="#2e1f47"/><circle cx="46" cy="${ey-2}" r="2" fill="#fff"/><circle cx="78" cy="${ey-2}" r="2" fill="#fff"/>`;
+    if(mood==="happy")mouth=`<path d="M50 ${ey+12} q10 10 20 0" stroke="#2e1f47" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+    else if(mood==="ok")mouth=`<path d="M52 ${ey+16} h16" stroke="#2e1f47" stroke-width="3" stroke-linecap="round"/>`;
+    else mouth=`<path d="M50 ${ey+20} q10 -9 20 0" stroke="#2e1f47" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M36 ${ey+8} q-2 8 2 10" stroke="#4fb3ff" stroke-width="3" fill="none"/>`}
+  const blush=mood==="happy"&&!sleeping?`<ellipse cx="34" cy="${ey+12}" rx="6" ry="3.5" fill="#ff8fb0" opacity=".7"/><ellipse cx="86" cy="${ey+12}" rx="6" ry="3.5" fill="#ff8fb0" opacity=".7"/>`:"";
+  return `<g class="pet">${body}${blush}${eyes}${mouth}</g>`;
+}
+
+function decay(){
+  if(!P)return;const now=Date.now(),h=Math.min((now-P.last)/3.6e6,72);P.last=now;
+  if(P.sleep){P.energy=clamp(P.energy+20*h);P.food=clamp(P.food-RATE.food*h*.5);P.fun=clamp(P.fun-RATE.fun*h*.3);P.clean=clamp(P.clean-RATE.clean*h*.5);
+    if(P.energy>=100)P.sleep=false}
+  else{P.food=clamp(P.food-RATE.food*h);P.fun=clamp(P.fun-RATE.fun*h);P.energy=clamp(P.energy-RATE.energy*h);P.clean=clamp(P.clean-RATE.clean*h)}
+  P.poops=Math.min(3,Math.floor((100-P.clean)/30));
+  store.set("tama",P);
+}
+function mood(){const a=(P.food+P.fun+P.energy+P.clean)/4;return a>=60?"happy":a>=30?"ok":"sad"}
+function need(){
+  if(P.sleep)return `${P.name} спит. Тссс…`;
+  const low=[["food","Я голодный! Покорми меня"],["energy","Глаза слипаются… уложи спать"],["clean","Фу, тут грязно. Помой меня"],["fun","Скучно-о-о. Поиграй со мной!"]].filter(([k])=>P[k]<30);
+  if(low.length)return low[0][1];
+  const m=mood();
+  return m==="happy"?["Я тебя люблю!","Жизнь прекрасна","Как дела на уроке?","Мур-мур (или как там у нас)"][Math.floor(Date.now()/8000)%4]:"Всё нормально, но можно лучше";
+}
+function age(){const d=Math.floor((Date.now()-P.born)/864e5);return d===0?"сегодня родился":`${d} ${d%10===1&&d%100!==11?"день":d%10>=2&&d%10<=4&&(d%100<10||d%100>=20)?"дня":"дней"}`}
+
+function render(fx){
+  if(!P){setup();return}
+  const m=mood();
+  $("screen").innerHTML=`<div class="top"><b>${esc(P.name)}</b><span>${age()}</span></div>
+   <div class="stage ${P.sleep?"sleeping":""} ${m==="sad"&&!P.sleep?"sad":""} ${fx?"hop":""}" id="stage">
+     <svg viewBox="0 0 120 120">${petSVG(P.type,m,P.sleep)}</svg>
+     ${P.sleep?'<span class="zzz">Z</span>':""}
+     ${Array.from({length:P.poops},(_,i)=>`<span class="poop" style="left:${8+i*12}%">💩</span>`).join("")}
+     ${fx?`<span class="fx">${fx}</span>`:""}
+   </div>
+   <div class="say">${esc(need())}</div>
+   <div class="bars">${[["food","Сытость"],["fun","Настроение"],["energy","Энергия"],["clean","Чистота"]].map(([k,l])=>`<div class="bar ${P[k]<30?"low":""}">${l}<i><span style="width:${P[k]}%;background:var(--${k})"></span></i></div>`).join("")}</div>`;
+  $("acts").innerHTML=[["feed","🍙","Покормить"],["play","⚽","Играть"],["sleep",P.sleep?"☀️":"🌙",P.sleep?"Разбудить":"Спать"],["wash","🫧","Помыть"]]
+    .map(([a,i,l])=>`<button class="act" data-a="${a}" ${P.sleep&&a!=="sleep"?"disabled":""}><span class="ic">${i}</span>${l}</button>`).join("");
+  $("acts").querySelectorAll(".act").forEach(b=>b.onclick=()=>act(b.dataset.a));
+  $("foot").innerHTML=confirmReset?`<div class="confirm">Отпустить ${esc(P.name)} и завести нового?<button class="mini danger" id="yes">Да</button><button class="mini" id="no">Нет</button></div>`
+    :`<span>Питомец живёт в этом браузере и скучает, пока тебя нет. Заходи проведать!</span><button class="link" id="reset">Завести другого питомца</button>`;
+  if(confirmReset){$("yes").onclick=()=>{P=null;confirmReset=false;store.set("tama",null);render()};$("no").onclick=()=>{confirmReset=false;render()}}
+  else $("reset").onclick=()=>{confirmReset=true;render()};
+}
+function act(a){
+  decay();let fx="";
+  if(a==="feed"){if(P.food>=95){fx="🙅";}else{P.food=clamp(P.food+25);P.clean=clamp(P.clean-4);fx="😋"}}
+  if(a==="play"){if(P.energy<10){fx="😴"}else{P.fun=clamp(P.fun+22);P.energy=clamp(P.energy-10);P.food=clamp(P.food-5);fx="💖"}}
+  if(a==="sleep"){P.sleep=!P.sleep;fx=P.sleep?"":"☀️"}
+  if(a==="wash"){P.clean=100;P.fun=clamp(P.fun-4);fx="✨"}
+  P.poops=Math.min(3,Math.floor((100-P.clean)/30));store.set("tama",P);render(fx);
+}
+function setup(){
+  $("acts").innerHTML="";$("foot").innerHTML="";
+  $("screen").innerHTML=`<div class="setup"><h2>КОГО ЗАВЕДЁМ?</h2>
+    <div class="types">${Object.entries(TYPES).map(([k,t])=>`<button class="type" data-t="${k}" aria-pressed="${k===pick}"><svg viewBox="0 0 120 120">${petSVG(k,"happy",false)}</svg>${t.name}</button>`).join("")}</div>
+    <input id="nm" maxlength="14" placeholder="Придумай имя" autocomplete="off">
+    <button class="go" id="go">ВЫЛУПИТЬСЯ!</button></div>`;
+  document.querySelectorAll(".type").forEach(b=>b.onclick=()=>{pick=b.dataset.t;document.querySelectorAll(".type").forEach(x=>x.setAttribute("aria-pressed",x===b))});
+  $("go").onclick=()=>{const n=$("nm").value.trim()||({cat:"Пушок",dragon:"Искорка",slime:"Желешка"})[pick];
+    P={type:pick,name:n,born:Date.now(),last:Date.now(),food:80,fun:80,energy:80,clean:100,sleep:false,poops:0};store.set("tama",P);render("🥚")};
+  $("nm").addEventListener("keydown",e=>{if(e.key==="Enter")$("go").click()});
+}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+decay();render();
+setInterval(()=>{if(P&&!confirmReset){decay();render()}},15000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&P){decay();render()}});
+</script>
+</body>
+</html>

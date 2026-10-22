@@ -2,38 +2,58 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Мои развлекалки</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Nunito:wght@600;800&display=swap">
 <style>
-:root{--bg:#eef3ec;--ink:#1d2420;--muted:#5d6b63;--accent:#ff5a36;--a:#ffd9c9;--b:#1c2638;--b-ink:#ece4d2}
-@media (prefers-color-scheme:dark){:root{--bg:#141a17;--ink:#eef3ef;--muted:#9aa9a0;--a:#5a2e22;color-scheme:dark}}
+:root{--bg:#eef3ec;--ink:#1d2420;--muted:#5d6b63;--accent:#ff5a36;--l:88%;--c:.08}
+@media (prefers-color-scheme:dark){:root{--bg:#141a17;--ink:#eef3ef;--muted:#9aa9a0;--l:32%;--c:.07;color-scheme:dark}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"Nunito",system-ui,sans-serif;min-height:100vh;display:flex;align-items:center}
-main{max-width:860px;margin:0 auto;padding:40px max(16px,env(safe-area-inset-left,0px));width:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Nunito",system-ui,sans-serif}
+main{max-width:1000px;margin:0 auto;padding-block:36px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:14px 24px;margin-bottom:26px}
 h1{font:900 clamp(36px,8vw,64px)/1 "Unbounded",system-ui,sans-serif;margin:0 0 10px}
 h1 span{color:var(--accent)}
-p.lead{color:var(--muted);font-weight:600;margin:0 0 28px;font-size:18px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
-a.card{display:flex;flex-direction:column;gap:8px;padding:26px;border-radius:20px;border:2px solid var(--ink);text-decoration:none;min-height:170px;transition:transform .15s}
-a.card:hover{transform:translateY(-4px)}
-a.card:focus-visible{outline:3px solid var(--accent);outline-offset:4px}
-.t{background:var(--a);color:var(--ink)}
-.r{background:var(--b);color:var(--b-ink)}
-.card b{font:700 24px/1.1 "Unbounded",system-ui,sans-serif}
+p.lead{color:var(--muted);font-weight:600;margin:0;font-size:18px}
+.count{display:inline-flex;align-items:baseline;gap:8px;font-weight:800;color:var(--ink);background:oklch(var(--l) var(--c) 250);border:2px solid var(--ink);border-radius:999px;padding:8px 16px;text-decoration:none}
+.count b{font:900 22px "Unbounded",system-ui,sans-serif}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+a.card{display:flex;flex-direction:column;gap:6px;padding:20px 20px 18px;border-radius:20px;border:2px solid var(--ink);text-decoration:none;min-height:160px;color:var(--ink);background:oklch(var(--l) var(--c) var(--h));transition:transform .15s}
+a.card:hover{transform:translateY(-4px) rotate(-.5deg)}
+a.card:focus-visible,.count:focus-visible{outline:3px solid var(--accent);outline-offset:4px}
+.card small{font:800 11px "Unbounded",system-ui,sans-serif;text-transform:uppercase;letter-spacing:.08em;opacity:.7}
+.card b{font:700 21px/1.15 "Unbounded",system-ui,sans-serif}
 .card span{font-weight:600;opacity:.85}
 .card i{margin-top:auto;font-style:normal;font-weight:800}
+@media (prefers-reduced-motion:reduce){a.card{transition:none}}
 </style>
 </head>
 <body>
 <main>
-  <h1>Мои <span>развлекалки</span></h1>
-  <p class="lead">Чтобы урок прошёл быстрее.</p>
+  <header>
+    <div><h1>Мои <span>развлекалки</span></h1><p class="lead">Чтобы урок прошёл быстрее.</p></div>
+    <a class="count" href="kanikuly/" id="cd">До каникул <b id="days">…</b></a>
+  </header>
   <div class="grid">
-    <a class="card t" href="tests/"><b>Тестотека</b><span>15 тестов: «Кухня», какое ты мороженое, какой ты кот и другие</span><i>Открыть →</i></a>
-    <a class="card r" href="tarot/"><b>Три карты Таро</b><span>Загадай вопрос и вытяни три карты со значениями</span><i>Открыть →</i></a>
+    <a class="card" style="--h:30" href="tests/"><small>тесты</small><b>Тестотека</b><span>19 тестов: «Кухня», «Отчаянные домохозяйки», какая ты картошка</span><i>Открыть →</i></a>
+    <a class="card" style="--h:300" href="tarot/"><small>гадание</small><b>Три карты Таро</b><span>Загадай вопрос и вытяни три карты со значениями</span><i>Открыть →</i></a>
+    <a class="card" style="--h:270" href="ball/"><small>гадание</small><b>Шар судьбы</b><span>Ответит «да» или «нет» на любой вопрос</span><i>Открыть →</i></a>
+    <a class="card" style="--h:0" href="love/"><small>гадание</small><b>Совместимость</b><span>Два имени — и процент любви или дружбы</span><i>Открыть →</i></a>
+    <a class="card" style="--h:250" href="sudoku/"><small>игра</small><b>Судоку</b><span>Три уровня, заметки, подсказки и рекорды</span><i>Открыть →</i></a>
+    <a class="card" style="--h:125" href="snake/"><small>игра</small><b>Змейка</b><span>Как на старом телефоне. Побей свой рекорд</span><i>Открыть →</i></a>
+    <a class="card" style="--h:160" href="hangman/"><small>игра</small><b>Виселица</b><span>Угадай слово по буквам: школа, еда, животные</span><i>Открыть →</i></a>
+    <a class="card" style="--h:320" href="tamagotchi/"><small>питомец</small><b>Тамагочи</b><span>Корми, играй и укладывай спать своего питомца</span><i>Открыть →</i></a>
+    <a class="card" style="--h:220" href="kanikuly/"><small>таймер</small><b>До каникул</b><span>Сколько дней, часов и серий «Кухни» осталось</span><i>Открыть →</i></a>
   </div>
 </main>
+<script>
+(function(){let ev={name:"каникул",date:"2026-11-29"};try{const s=JSON.parse(localStorage.getItem("countdown"));if(s&&s.date)ev=s}catch(e){}
+const[y,m,d]=ev.date.split("-").map(Number),ms=new Date(y,m-1,d)-new Date(),n=Math.floor(ms/864e5);
+const el=document.getElementById("days");
+if(ms<=0){document.getElementById("cd").textContent="Каникулы!";return}
+const w=n%10===1&&n%100!==11?"день":n%10>=2&&n%10<=4&&(n%100<10||n%100>=20)?"дня":"дней";
+el.textContent=n+" "+w;document.getElementById("cd").firstChild.textContent="До "+ev.name+" ";})();
+</script>
 </body>
 </html>

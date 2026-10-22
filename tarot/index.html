@@ -6,6 +6,7 @@
 <title>Три карты Таро</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=Alegreya+Sans:wght@400;500;700&display=swap">
+<style>[hidden]{display:none!important}body{margin:0}.home{position:relative;z-index:50;display:inline-block;margin:12px 0 0 max(16px,env(safe-area-inset-left,0px));font:700 13px system-ui,sans-serif;padding:6px 12px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;text-decoration:none}.home:focus-visible{outline:2px solid currentColor;outline-offset:2px}</style>
 <style>
 /* Layout: one night-table scene — question prompt, draw button, three cards in a row that flip one by one, meanings under each */
 :root{
@@ -69,7 +70,7 @@ button:focus-visible,.opts input:focus-visible{outline:2px solid var(--ink);outl
 </style>
 </head>
 <body>
-<a href="../" style="position:relative;z-index:50;display:inline-block;margin:12px 0 0 16px;font:700 13px system-ui,sans-serif;padding:6px 12px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;text-decoration:none">← На главную</a>
+<a class="home" href="../">← На главную</a>
 <canvas id="sky" aria-hidden="true"></canvas>
 <main class="wrap">
   <div>

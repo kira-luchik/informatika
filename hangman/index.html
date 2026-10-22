@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Виселица</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Rubik:wght@500;700&display=swap">
+<style>[hidden]{display:none!important}body{margin:0}.home{position:relative;z-index:50;display:inline-block;margin:12px 0 0 max(16px,env(safe-area-inset-left,0px));font:700 13px system-ui,sans-serif;padding:6px 12px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;text-decoration:none}.home:focus-visible{outline:2px solid currentColor;outline-offset:2px}</style>
+<style>
+/* Layout: school chalkboard — drawing left, word and chalk keyboard right; stacks on phones. Single deliberate board palette */
+:root{
+  color-scheme:dark;
+  --wood:#6b4a2f; --board:#2f4a3c; --board2:#29423a; --chalk:#eef0e6; --dim:#b7c2b4; --yellow:#f2d77a; --pink:#f2a2a2; --key:#3a5747;
+  --hand:"Caveat","Comic Sans MS",cursive; --body:"Rubik",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{background:var(--wood);color:var(--chalk);font-family:var(--body);margin:0;min-height:100vh}
+.home{background:rgba(0,0,0,.35)!important}
+.wrap{max-width:940px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 36px}
+.board{background:radial-gradient(120% 90% at 30% 20%,var(--board),var(--board2));border-radius:14px;border:10px solid #4c3420;box-shadow:inset 0 0 40px rgba(0,0,0,.35),0 12px 30px rgba(0,0,0,.35);padding:18px clamp(14px,3vw,30px) 24px}
+header{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px 16px}
+h1{font:700 clamp(40px,8vw,60px)/1 var(--hand);margin:0}
+.score{font:500 26px var(--hand);color:var(--dim)}
+.score b{color:var(--yellow)}
+.cats{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px}
+.cat{font:700 22px var(--hand);background:transparent;color:var(--dim);border:2px dashed rgba(238,240,230,.35);border-radius:10px;padding:2px 12px;cursor:pointer}
+.cat[aria-pressed="true"]{color:var(--chalk);border-style:solid;border-color:var(--chalk)}
+.game{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;align-items:center;margin-top:8px}
+@media (min-width:760px){.game{grid-template-columns:280px minmax(0,1fr);gap:28px}}
+svg.draw{width:100%;max-width:280px;height:auto;justify-self:center;display:block}
+svg.draw *{stroke:var(--chalk);stroke-width:5;stroke-linecap:round;fill:none}
+svg.draw .part{opacity:0;transition:opacity .35s}
+svg.draw .part.on{opacity:1}
+.right{display:flex;flex-direction:column;gap:14px;min-width:0}
+.hint{font:500 26px var(--hand);color:var(--yellow);margin:0}
+.word{display:flex;flex-wrap:wrap;gap:8px;font:700 clamp(34px,7vw,52px)/1 var(--hand)}
+.ch{width:1.05em;text-align:center;border-bottom:3px solid var(--chalk);padding-bottom:2px;min-height:1.1em}
+.ch.miss{color:var(--pink)}
+.lives{font:500 22px var(--hand);color:var(--dim)}
+.kb{display:flex;flex-direction:column;gap:6px}
+.kr{display:flex;gap:5px;justify-content:center}
+.key{flex:1 1 0;max-width:46px;min-width:0;font:700 clamp(15px,3.6vw,19px) var(--body);color:var(--chalk);background:var(--key);border:none;border-radius:8px;padding:10px 0;cursor:pointer}
+.key.ok{background:#5d8a5a;color:#fff}
+.key.no{background:transparent;color:rgba(238,240,230,.3);text-decoration:line-through}
+.key:disabled{cursor:default}
+.end{display:flex;flex-wrap:wrap;gap:12px;align-items:center;font:700 30px var(--hand)}
+.end.win{color:var(--yellow)}.end.lose{color:var(--pink)}
+.btn{font:700 16px var(--body);background:var(--chalk);color:var(--board2);border:none;border-radius:999px;padding:10px 20px;cursor:pointer}
+button:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+.tray{height:12px;margin:0 6px;background:#4c3420;border-radius:0 0 8px 8px}
+</style>
+</head>
+<body>
+<a class="home" href="../">← На главную</a>
+<main class="wrap">
+  <div class="board">
+    <header><h1>Виселица</h1><div class="score">Угадано подряд: <b id="streak">0</b> · рекорд <b id="bestS">0</b></div></header>
+    <div class="cats" id="cats" role="group" aria-label="Тема слов"></div>
+    <div class="game">
+      <svg class="draw" viewBox="0 0 200 220" aria-hidden="true">
+        <path d="M20 210h110M50 210V20h90v24"/>
+        <path d="M50 60l36-40" />
+        <circle class="part" cx="140" cy="62" r="18"/>
+        <path class="part" d="M140 80v58"/>
+        <path class="part" d="M140 94l-26 26"/>
+        <path class="part" d="M140 94l26 26"/>
+        <path class="part" d="M140 138l-22 38"/>
+        <path class="part" d="M140 138l22 38"/>
+      </svg>
+      <div class="right">
+        <p class="hint" id="hint"></p>
+        <div class="word" id="word" aria-live="polite"></div>
+        <div class="lives" id="lives"></div>
+        <div class="end" id="end" hidden></div>
+        <div class="kb" id="kb"></div>
+      </div>
+    </div>
+  </div>
+  <div class="tray"></div>
+</main>
+
+<script>
+const WORDS={
+"Школа":["ДНЕВНИК","ПЕРЕМЕНА","КОНТРОЛЬНАЯ","УЧЕБНИК","ТЕТРАДЬ","ЛИНЕЙКА","КАНИКУЛЫ","ДИРЕКТОР","РАСПИСАНИЕ","ПОРТФЕЛЬ","СТОЛОВАЯ","ИНФОРМАТИКА","ГЕОГРАФИЯ","ЗВОНОК","ДОМАШКА","ФИЗКУЛЬТУРА","ОДНОКЛАССНИК","ТРАНСПОРТИР","ГЛОБУС","КАРАНДАШ"],
+"Еда":["ПЕЛЬМЕНИ","ШАУРМА","МАКАРОНЫ","БЛИНЧИКИ","ОКРОШКА","МОРОЖЕНОЕ","ПИЦЦА","БУТЕРБРОД","ВИНЕГРЕТ","СЫРНИКИ","ШОКОЛАДКА","КОТЛЕТА","ГРЕЧКА","ПЕЧЕНЬКА","КАРТОШКА","ЗЕФИРКА","ЧЕБУРЕК","МАЙОНЕЗ","ОЛИВЬЕ","КОМПОТ"],
+"Животные":["КАПИБАРА","ХОМЯК","ЖИРАФ","КРОКОДИЛ","ПИНГВИН","ЕНОТ","БЕГЕМОТ","ЛЕНИВЕЦ","ОСЬМИНОГ","ЧЕРЕПАХА","КЕНГУРУ","ФЛАМИНГО","ПОПУГАЙ","ДИКОБРАЗ","ХАМЕЛЕОН","БАРСУК","ВЕРБЛЮД","МУРАВЬЕД","ДЕЛЬФИН","СУРИКАТ"],
+"Профессии":["ПОВАР","КОСМОНАВТ","БЛОГЕР","ПРОГРАММИСТ","ВЕТЕРИНАР","ПАРИКМАХЕР","ПОЖАРНЫЙ","ДИЗАЙНЕР","ХИРУРГ","БАРИСТА","ФОТОГРАФ","СТЮАРДЕССА","СТРОИТЕЛЬ","КОНДИТЕР","АРХЕОЛОГ","МУЗЫКАНТ","ДРЕССИРОВЩИК","ЖУРНАЛИСТ","БИБЛИОТЕКАРЬ","ПИЛОТ"],
+"Вещи дома":["ХОЛОДИЛЬНИК","ПЫЛЕСОС","ТЕЛЕВИЗОР","ПОДУШКА","ТАБУРЕТКА","СКОВОРОДКА","ЧАЙНИК","ГИРЛЯНДА","ЗАРЯДКА","НОУТБУК","КОВЁР".replace("Ё","Е"),"НАУШНИКИ","ВЕШАЛКА","ТАПОЧКИ","КАСТРЮЛЯ","МИКРОВОЛНОВКА","ЗЕРКАЛО","ОДЕЯЛО","УТЮГ","ТОРШЕР"]
+};
+const ROWS=["ЙЦУКЕНГШЩЗХЪ","ФЫВАПРОЛДЖЭ","ЯЧСМИТЬБЮ"];
+const LAT="qwertyuiop[]asdfghjkl;'zxcvbnm,.";const CYR="ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ";
+const MAX=6;
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+let cat=store.get("hang-cat");if(!WORDS[cat])cat="Школа";
+let word,guessed,wrong,over,streak=+store.get("hang-streak")||0,best=+store.get("hang-best")||0,used={};
+const $=id=>document.getElementById(id);
+
+function renderCats(){
+  $("cats").innerHTML=Object.keys(WORDS).map(c=>`<button class="cat" aria-pressed="${c===cat}">${c}</button>`).join("");
+  $("cats").querySelectorAll(".cat").forEach(b=>b.onclick=()=>{cat=b.textContent;store.set("hang-cat",cat);renderCats();newWord()});
+}
+function newWord(){
+  const list=WORDS[cat];used[cat]=used[cat]||[];if(used[cat].length>=list.length)used[cat]=[];
+  const pool=list.filter(w=>!used[cat].includes(w));word=pool[Math.floor(Math.random()*pool.length)];used[cat].push(word);
+  guessed=new Set();wrong=0;over=false;
+  $("kb").innerHTML=ROWS.map(r=>`<div class="kr">${[...r].map(l=>`<button class="key" data-l="${l}">${l}</button>`).join("")}</div>`).join("");
+  $("kb").querySelectorAll(".key").forEach(b=>b.onclick=()=>guess(b.dataset.l));
+  $("end").hidden=true;render();
+}
+function guess(l){
+  if(over||guessed.has(l))return;guessed.add(l);
+  const k=$("kb").querySelector(`[data-l="${l}"]`);
+  if(word.includes(l))k.classList.add("ok");else{k.classList.add("no");wrong++}
+  k.disabled=true;
+  const won=[...word].every(c=>guessed.has(c));
+  if(won||wrong>=MAX)finish(won);
+  render();
+}
+function finish(won){
+  over=true;
+  if(won){streak++;if(streak>best){best=streak;store.set("hang-best",best)}}else streak=0;
+  store.set("hang-streak",streak);
+  const e=$("end");e.className="end "+(won?"win":"lose");
+  e.innerHTML=`<span>${won?"Угадал(а)! Молодец!":`Не вышло. Было слово «${word.toLowerCase()}»`}</span><button class="btn" id="next">Следующее слово</button>`;
+  e.hidden=false;$("next").onclick=newWord;$("next").focus({preventScroll:true});
+  $("kb").querySelectorAll(".key").forEach(b=>b.disabled=true);
+}
+function render(){
+  $("hint").textContent=`Тема: ${cat.toLowerCase()} · ${word.length} букв`;
+  $("word").innerHTML=[...word].map(c=>`<span class="ch${over&&!guessed.has(c)?" miss":""}">${guessed.has(c)||over?c:""}</span>`).join("");
+  $("lives").textContent=over?"":`Можно ошибиться ещё ${MAX-wrong} раз`;
+  document.querySelectorAll(".part").forEach((p,i)=>p.classList.toggle("on",i<wrong));
+  $("streak").textContent=streak;$("bestS").textContent=best;
+}
+document.addEventListener("keydown",e=>{
+  if(e.ctrlKey||e.metaKey||e.altKey)return;
+  if(e.key==="Enter"&&over){newWord();return}
+  let l=e.key.toUpperCase();if(l==="Ё")l="Е";
+  const li=LAT.indexOf(e.key.toLowerCase());if(li>=0&&e.key.length===1)l=CYR[li];
+  if(l.length===1&&CYR.includes(l)){e.preventDefault();guess(l)}
+});
+renderCats();newWord();
+</script>
+</body>
+</html>
